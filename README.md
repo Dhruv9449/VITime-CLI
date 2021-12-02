@@ -39,7 +39,7 @@ Open terminal and install the package using python package installer.
 pip install vitime
 ```
 ### Source code
-- Download latest release via [zip file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.0.1.zip) or [tar file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.0.1.tar.gz)
+- Download latest release via [zip file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.1.0.zip) or [tar file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.1.0.tar.gz)
 - Extract the folder to your desired location
 - Then install it in your desired terminal using suitable command
 #### Linux or Max OS X
