@@ -4,39 +4,121 @@ from .initialize import *
 import click
 
 
-def addcourse_db(Course):
-    cursor.execute("INSERT INTO Courses values (?,?,?,?)",
-                    (Course.name, str(Course.slots), Course.type, str(Course.dt)))
-    mycon.commit()
+def savecourse(Course):
+    if Course.type == "L":
+        daysTL = daysTh
+        days = list(daysTL.keys())
+        times = thSlots
+        allslots = theoryslots
+    else:
+        daysTL = daysLb
+        days = list(daysTL.keys())
+        times = lbSlots
+        allslots = labslots
 
-def addschedule_db(Day):
-    cursor.execute("UPDATE Schedules SET schedule = ? WHERE day = ?", (str(Day.schedule), Day.day,))
-    mycon.commit()
-
-def loadcourse(name):
-    cursor.execute("SELECT * FROM Courses WHERE name = ?",(name,))
-    name, slots, type, dt = cursor.fetchall()[0]
-    slots, dt = eval(slots), eval(dt)
-    Course = course(name, slots, type, dt)
-    return Course
-
-def loadday(name):
-    cursor.execute("SELECT * FROM Schedules WHERE day = ?",(name,))
-    name, schedule = cursor.fetchall()[0]
-    schedule = eval(schedule)
-    Day = day(name, schedule)
-    return Day
-
-def checkcourse(Name):
-    cursor.execute("SELECT * from Courses WHERE name = ? AND slots = ?",(Name.name, str(Name.slots)))
-    courses = cursor.fetchall()
-    if len(courses) == 0:
-        return False
+    for slot in Course.slots:
+        if slot not in allslots:
+            print(f"\nInvalid slots entered for {Course.name}! Please enter valid slots.\nCourse not added!")
+            return
+        for day in daysTL:
+            dt = {}
+            dt[day]=[]
+            daysl = daysTL[day]
+            if slot in daysl:
+                for i in range(len(daysl)):
+                    if slot == daysl[i]:
+                        time = times[i]
+                        dt[day].append(time)
+                        coursedetails = [time, Course.name, slot, Course.type]
+                        d1 = loadday(day)
+                        d1.schedule.append(coursedetails)
+                        d1.schedule.sort()
+                        addschedule_db(d1)
+    addcourse_db(Course)
     return True
+
+
+
+
 
 @click.group(cls=CustomGroup, context_settings=help)
 def vitime():
     pass
+
+@vitime.command()
+@click.pass_context
+def addtimetable(ctx):
+    '''
+    Add your timetable and delete existing one.
+    '''
+    if ctx.invoke(deletetimetable):
+        print("Please type 'yes' to delete existing timetable and add new one!")
+        return
+    print("\n\nEnter your new timetable :")
+    text = retrieveinput()
+
+    try:
+        data = {i for i in text.split() if len(i)>10}
+        theory , lab = [], []
+        for i in data:
+            if i[0] == 'L':
+                lab.append(i)
+            else:
+                theory.append(i)
+        print('\n'*2)
+        thcourses, lbcourses = {}, {}
+        for i in data:
+            k = i.split('-')
+            if i[0] == 'L':
+                courses = lbcourses
+            else :
+                courses = thcourses
+
+            name = k[1]
+            if name not in courses:
+                courses[name] = [k[0],]
+            else:
+                courses[name].append(k[0])
+
+        def itercourses(courses, type):
+            for i in courses:
+                Course = course()
+                Course.name = i
+                Course.slots = courses[i]
+                Course.type = type
+                if len(Course.name)<8:
+                    print(f"{Course.name} is an invalid course name, please enter a valid course name.(eg - BCHY101L)")
+                    continue
+                if checkcourse(Course):
+                    print(f"{Course.name} already exists!")
+                    continue
+                savecourse(Course)
+                print(f"{Course.name} added!")
+        itercourses(thcourses, 'L')
+        itercourses(lbcourses, 'P')
+        print('\nTimetable added!')
+    except :
+        print("\nInvalid input! Please try again with a valid input or use the addcourse command to add courses manually")
+
+
+@vitime.command(cls=CustomCommand)
+def showcourses():
+    '''
+    Shows all courses.
+    '''
+    print("             VITIME\n")
+    cursor.execute("SELECT name, type, slots FROM Courses")
+    courses = cursor.fetchall()
+    if courses == []:
+        print("No courses! Empty timetable!")
+    for i in range(len(courses)):
+        if courses[i][1] == 'L':
+            type = ' Theory '
+        else:
+            type = ' Lab    '
+        print(i+1, courses[i][0], type, f"({'+'.join(eval(courses[i][2]))})")
+
+
 
 @vitime.command(cls=CustomCommand)
 def addcourse():
@@ -48,7 +130,7 @@ def addcourse():
         Course = course()
         Course.name = input("\nEnter course name : ")
         if len(Course.name)<8:
-            print("\nInvalid course name, please enter a valid course name.(eg - BCHY101L - Engineering Chemistry Theory)")
+            print("\nInvalid course name, please enter a valid course name.(eg - BCHY101L)")
             return
         Course.type = Course.name[7].upper()
         n = 1
@@ -66,40 +148,13 @@ def addcourse():
             print("Course already exists!")
             return
 
-        if Course.type == "L":
-            daysTL = daysTh
-            days = list(daysTL.keys())
-            times = thSlots
-            allslots = theoryslots
-        else:
-            daysTL = daysLb
-            days = list(daysTL.keys())
-            times = lbSlots
-            allslots = labslots
-
-        for slot in Course.slots:
-            if slot not in allslots:
-                print("\nInvalid slots entered! Please enter valid slots.")
-                return
-            for day in daysTL:
-                dt = {}
-                dt[day]=[]
-                daysl = daysTL[day]
-                if slot in daysl:
-                    for i in range(len(daysl)):
-                        if slot == daysl[i]:
-                            time = times[i]
-                            dt[day].append(time)
-                            coursedetails = [time, Course.name, slot, Course.type]
-                            d1 = loadday(day)
-                            d1.schedule.append(coursedetails)
-                            d1.schedule.sort()
-                            addschedule_db(d1)
-        addcourse_db(Course)
-        print("\nSuccessfully added course!")
-        opt = input("Do you want to add more courses (y/n) : ").lower()[:1]
+        check = savecourse(Course)
+        if check:
+            print("\nSuccessfully added course!")
+        opt = input("\nDo you want to add more courses (y/n) : ").lower()[:1]
         if opt == "n":
             break
+
 
 
 @vitime.command(cls=CustomCommand)
@@ -141,18 +196,19 @@ def deletecourse():
     print("Course deleted!")
 
 
+
 @vitime.command(cls=CustomCommand)
 def deletetimetable():
     '''
     Deletes entire timetable including all courses.
     '''
     print("             VITIME")
-    confirm = input("""\nAre you sure you want to clear all the contents of the timetable?
+    confirm = input("""\nAre you sure you want to clear all the contents of the existing timetable?
 This step is irreversible. Type "yes" to confirm : """)
 
     if confirm != "yes" :
         print("\nTimetable not deleted, if you want to delete the timetable try again!\n")
-        return
+        return True
     cursor.execute("DELETE FROM Schedules")
     cursor.execute("DELETE FROM Courses")
     cursor.executemany("INSERT INTO Schedules VALUES (?,?)",[("monday","[]"),
@@ -162,6 +218,7 @@ This step is irreversible. Type "yes" to confirm : """)
                                                          ("friday","[]")])
     mycon.commit()
     print("Deleted timetable!")
+
 
 
 @vitime.command(cls=CustomCommand)

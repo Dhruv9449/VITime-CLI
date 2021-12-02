@@ -5,7 +5,7 @@ with open("README.md") as r:
 
 setup(
     name = 'vitime',
-    version = '0.0.1',
+    version = '0.1.0',
     description = 'VITime app for storing and displaying VIT timetabe',
     long_description_content_type = "text/markdown",
     long_description = Long_desc,
@@ -14,17 +14,16 @@ setup(
     url = "https://github.com/Dhruv9449/VITime-CLI",
     project_urls = {
                     'Source' : 'https://github.com/Dhruv9449/VITime-CLI',
-                    'Bug Report': 'https://github.com/Dhruv9449/VITime-CLI/issues'
+                    'Bug Tracker': 'https://github.com/Dhruv9449/VITime-CLI/issues'
                     },
     packages = ['VITimeCLI'],
     include_package_data = True,
-    install_requires = ['click'],
-    keywords = ['python','vitable','vitime','vit', 'timetable'],
+    install_requires = ['click','pyperclip'],
     classifiers = [
-            'Development Status :: 1 - Planning',
-            'Intended Audience :: VIT students',
+            'Development Status :: 5 - Production/Stable',
+            'Intended Audience :: Education',
             'Programming Language :: Python :: 3',
-            'Opertating System :: OS Independent',
+            'Operating System :: OS Independent',
             'License :: OSI Approved :: MIT License'
             ],
     license = 'MIT',

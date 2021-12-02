@@ -1,6 +1,7 @@
 import os
 import sqlite3 as sq
 import click
+import pyperclip
 
 homedir = os.path.expanduser("~")
 
@@ -33,7 +34,9 @@ class course:
         self.type = "L"
         self.dt = []
 
+
 help = dict(help_option_names = ['-h','--help'])
+
 
 class CustomGroup(click.Group):
     def format_commands(self, ctx, formatter):
@@ -85,11 +88,10 @@ Developer :
 
         formatter.write(head)
         formatter.write(body)
+        formatter.write("\nFor more detailed help:\n  https://github.com/Dhruv9449/VITime-CLI/blob/main/README.md\n")
         self.format_commands(ctx, formatter)
         formatter.write("\nUSAGE:\n"+"  vitime [COMMAND] [COMMAND OPTIONS]\n")
         self.format_options(ctx, formatter)
-
-
 
 
 class CustomCommand(click.Command):
@@ -122,3 +124,53 @@ class CustomCommand(click.Command):
         print("  "+text)
         self.format_options(ctx, formatter)
         print("\nUSAGE:\n  "+path+" [OPTIONS]\n")
+        print("For more detailed help:\n  https://github.com/Dhruv9449/VITime-CLI/blob/main/README.md\n")
+
+
+
+#Database functions
+def addcourse_db(Course):
+    cursor.execute("INSERT INTO Courses values (?,?,?,?)",
+                    (Course.name, str(Course.slots), Course.type, str(Course.dt)))
+    mycon.commit()
+
+def addschedule_db(Day):
+    cursor.execute("UPDATE Schedules SET schedule = ? WHERE day = ?", (str(Day.schedule), Day.day,))
+    mycon.commit()
+
+def loadcourse(name):
+    cursor.execute("SELECT * FROM Courses WHERE name = ?",(name,))
+    name, slots, type, dt = cursor.fetchall()[0]
+    slots, dt = eval(slots), eval(dt)
+    Course = course(name, slots, type, dt)
+    return Course
+
+def loadday(name):
+    cursor.execute("SELECT * FROM Schedules WHERE day = ?",(name,))
+    name, schedule = cursor.fetchall()[0]
+    schedule = eval(schedule)
+    Day = day(name, schedule)
+    return Day
+
+def checkcourse(Name):
+    cursor.execute("SELECT * from Courses WHERE name = ? AND slots = ?",(Name.name, str(Name.slots)))
+    courses = cursor.fetchall()
+    if len(courses) == 0:
+        return False
+    return True
+
+
+#input command
+def retrieveinput():
+    lines = 0
+    while True:
+        lines = lines + 1 #counts iterations of the while loop.
+
+        text = pyperclip.paste()
+        linecount = text.count('\n')+1 #counts lines in clipboard content.
+
+        if lines <= linecount: # aslong as the while loop hasn't iterated as many times as there are lines in the clipboard.
+            input()
+        else:
+            break
+    return text
