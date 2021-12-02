@@ -5,7 +5,7 @@ with open("README.md") as r:
 
 setup(
     name = 'vitime',
-    version = '0.1.0',
+    version = '0.1.2',
     description = 'VITime app for storing and displaying VIT timetabe',
     long_description_content_type = "text/markdown",
     long_description = Long_desc,

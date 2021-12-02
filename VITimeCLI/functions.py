@@ -56,7 +56,7 @@ def addtimetable(ctx):
         return
     print("\n\nEnter your new timetable :")
     text = retrieveinput()
-
+    print("\nPlease wait this might take a while...")
     try:
         data = {i for i in text.split() if len(i)>10}
         theory , lab = [], []
@@ -86,7 +86,7 @@ def addtimetable(ctx):
                 Course.name = i
                 Course.slots = courses[i]
                 Course.type = type
-                if len(Course.name)<8:
+                if len(Course.name)<5:
                     print(f"{Course.name} is an invalid course name, please enter a valid course name.(eg - BCHY101L)")
                     continue
                 if checkcourse(Course):
@@ -129,10 +129,16 @@ def addcourse():
     while True:
         Course = course()
         Course.name = input("\nEnter course name : ")
-        if len(Course.name)<8:
+        if len(Course.name)<5:
             print("\nInvalid course name, please enter a valid course name.(eg - BCHY101L)")
             return
-        Course.type = Course.name[7].upper()
+        Course.slots = input("Please enter course slots (eg- E2+TE2) : ").upper().split("+")
+        Course.type = Course.slots[0][0]
+        if Course.type == 'L':
+            Course.type = 'P'
+        else :
+            Course.type = 'L'
+
         n = 1
         while Course.type not in ["L","P"]:
             print("Couldn't automatically identify course type!")
@@ -142,7 +148,7 @@ def addcourse():
                 return
             n+=1
 
-        Course.slots = input("Please enter course slots (eg- E2+TE2) : ").upper().split("+")
+
 
         if checkcourse(Course):
             print("Course already exists!")
