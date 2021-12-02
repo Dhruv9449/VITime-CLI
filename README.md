@@ -5,6 +5,26 @@ CLI tool to view your timetable from terminal anytime!
 <a href="https://badge.fury.io/py/vitime"><img src="https://img.shields.io/pypi/v/vitime?color=blue&label=pypi%20package" alt="PyPI version" height="18"></a>
 
 
+
+## Table of contents  
+
+- [Preview](https://github.com/Dhruv9449/VITime-CLI#preview)  
+- [Installation](https://github.com/Dhruv9449/VITime-CLI#installation)
+  - [PyPI](https://github.com/Dhruv9449/VITime-CLI#pypi)
+  - [Source code](https://github.com/Dhruv9449/VITime-CLI#source-code)
+- [Setting up](https://github.com/Dhruv9449/VITime-CLI#setting-up)
+  - [Add timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-timetable)
+  - [Add course](https://github.com/Dhruv9449/VITime-CLI#vitime-addcourse)
+- [Usage](https://github.com/Dhruv9449/VITime-CLI#usage)
+  - [View today's timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-today)
+  - [View a day's timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-showday)
+  - [View full timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-full)
+  - [Delete course](https://github.com/Dhruv9449/VITime-CLI#vitime-deletecourse)
+  - [Delete timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-deletetimetable)
+- [License](https://github.com/Dhruv9449/VITime-CLI#license)
+
+
+
 ## Preview
 
 ![VITime](/assets/VITime.gif)
@@ -36,7 +56,7 @@ C:\users\username> python setup.py install
 
 ## Setting up
 ### Commands
-#### `vitime timetable`
+#### `vitime addtimetable`
 
 Command to add entire timetable.  
 > **Note:** This deletes any existing timetable.  
@@ -49,6 +69,7 @@ Command to add entire timetable.
 2. Adding timetable using VITime  
 
 ![vitime addtimetable](/assets/vitime_addtimetable.gif)</p>
+
 
 
 #### `vitime addcourse`
@@ -68,11 +89,15 @@ Shows all ongoing/left classes for the day.
 
 ![vitime today](/assets/vitime_today.gif)
 
+
+
 #### `vitime showday`
 
 Shows all the classes on the day entered by the user.
 
 ![vitime showday](/assets/vitime_showday.gif)
+
+
 
 #### `vitime full`
 
@@ -80,11 +105,14 @@ Shows the entire timetable.
 
 ![vitime full](/assets/vitime_full.gif)
 
+
+
 #### `vitime deletecourse`
 
 Deletes the given course from timetable.
 
 ![vitime deletecourse](/assets/vitime_deletecourse.gif)
+
 
 
 #### `vitime deletetimetable`
