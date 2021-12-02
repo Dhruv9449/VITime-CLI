@@ -72,6 +72,7 @@ Command to add entire timetable.
 
 
 
+
 #### `vitime addcourse`
 
 Command to add a course.
@@ -91,11 +92,15 @@ Shows all ongoing/left classes for the day.
 
 
 
+
+
 #### `vitime showday`
 
 Shows all the classes on the day entered by the user.
 
 ![vitime showday](https://github.com/Dhruv9449/VITime-CLI/blob/main/assets/vitime_showday.gif)
+
+
 
 
 
@@ -107,11 +112,14 @@ Shows the entire timetable.
 
 
 
+
+
 #### `vitime deletecourse`
 
 Deletes the given course from timetable.
 
 ![vitime deletecourse](https://github.com/Dhruv9449/VITime-CLI/blob/main/assets/vitime_deletecourse.gif)
+
 
 
 
