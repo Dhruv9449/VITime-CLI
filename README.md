@@ -22,6 +22,7 @@ CLI tool to view your timetable from terminal anytime!
   - [Delete course](https://github.com/Dhruv9449/VITime-CLI#vitime-deletecourse)
   - [Delete timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-deletetimetable)
 - [License](https://github.com/Dhruv9449/VITime-CLI#license)
+- [References](https://github.com/Dhruv9449/VITime-CLI#references)
 
 
 
@@ -138,6 +139,11 @@ Deletes the entire timetable.
 Copyright (c) 2021 Dhruv9449  
 [MIT license](LICENSE)
 
+## References
+This project is inspired by [VITable](https://github.com/CartelProject/vitable]) made by -  
+[CartelProject](https://github.com/CartelProject)
+- [Vishesh Bansal](https://github.com/VisheshBansal)
+- [Gagan Malvi](https://github.com/gaganmalvi)
 <br>
 <br>
 
