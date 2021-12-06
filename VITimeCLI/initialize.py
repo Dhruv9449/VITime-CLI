@@ -3,6 +3,24 @@ import sqlite3 as sq
 import click
 import pyperclip
 import re
+from subprocess import PIPE, Popen
+import json
+import urllib.request
+
+
+__version__ = '0.2.1'
+
+
+# cmdline
+def cmd(command):
+    process = Popen(
+        args=command,
+        stdout=PIPE,
+        shell=True
+    )
+    return process.communicate()[0].decode("utf-8")
+
+
 
 homedir = os.path.expanduser("~")
 
@@ -24,6 +42,7 @@ def initialize():
                                                              ("friday","[]")])
     mycon.commit()
 
+initialize()
 
 class day:
     def __init__(self, day, schedule = []):
@@ -96,6 +115,9 @@ Developer :
         self.format_commands(ctx, formatter)
         formatter.write("\nUSAGE:\n"+"  vitime [COMMAND] [COMMAND OPTIONS]\n")
         self.format_options(ctx, formatter)
+        check, Latest_version = checkLatestVersion()
+        if check :
+            formatter.write(f"\nVITIME UPDATE AVAILABLE!\nVersion {Latest_version} available, do 'vitime -u' to update now!\n")
 
 
 class CustomCommand(click.Command):
@@ -156,6 +178,48 @@ def loadday(name):
     Day = day(name, schedule)
     return Day
 
+
+# auto updates
+
+def checkLatestVersion():
+    # Get the currently installed version
+    current_version = __version__
+    # Check pypi for the latest version number
+    contents = urllib.request.urlopen('https://pypi.org/pypi/vitime/json').read()
+    data = json.loads(contents)
+    latest_version = data['info']['version']
+    check = latest_version != current_version
+    return check, latest_version
+
+
+
+def check_update(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    try:
+        print("             VITIME\n")
+        req = cmd("pip install vitime --upgrade")
+        if "Successfully uninstalled vitime" in req:
+            version = cmd("pip show vitime").split("\n")[1]
+            print(f"NEW UPDATE! [{version}]")
+            print("VITime updated! Check out what's new at -\n  https://github.com/Dhruv9449/VITime-CLI/blob/main/CHANGELOG.md\n")
+        else:
+            print("You are already using latest version of VITime!\n")
+    except:
+        print("An error occured! Please update manually using 'pip install vitime --upgrade'.\n")
+    ctx.exit()
+
+
+# print version
+def print_version(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    print("             VITIME\n")
+    print("Version:", __version__,"\n")
+    ctx.exit()
+
+
+#checks
 def checkcourse(Name):
     if not re.search("[A-Z][A-Z][A-Z][A-Z]\d\d\d|[A-Z][A-Z][A-Z]\d\d\d\d", Name.code):
         print(f"\n{Name.code} is an invalid course code, please enter a valid course code.(eg - BCHY101L/CSE1002)\n")

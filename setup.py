@@ -1,11 +1,15 @@
 from setuptools import setup
+from VITimeCLI.initialize import __version__
+
 
 with open("README.md") as r:
     Long_desc = "\n" + r.read()
 
+
+
 setup(
     name = 'vitime',
-    version = '0.2.0',
+    version = __version__,
     description = 'VITime app for storing and displaying VIT timetabe',
     long_description_content_type = "text/markdown",
     long_description = Long_desc,

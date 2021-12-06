@@ -47,11 +47,17 @@ def savecourse(Course):
 
 
 
-
-
 @click.group(cls=CustomGroup, context_settings=help)
+@click.option('-v','--version', is_flag=True, callback = print_version,
+              expose_value=False, is_eager=True, help = "Shows the version.")
+@click.option('-u','--update', is_flag=True, callback = check_update,
+              expose_value=False, is_eager=True, help = "Updates VITime to latest version.")
 def vitime():
+    check, Latest_version = checkLatestVersion()
+    if check :
+        print(f"\nVITIME UPDATE AVAILABLE!\nVersion {Latest_version} available, do 'vitime -u' to update now!\n")
     pass
+
 
 @vitime.command()
 @click.pass_context

@@ -12,6 +12,7 @@ CLI tool to view your timetable from terminal anytime!
 - [Installation](https://github.com/Dhruv9449/VITime-CLI#installation)
   - [PyPI](https://github.com/Dhruv9449/VITime-CLI#pypi)
   - [Source code](https://github.com/Dhruv9449/VITime-CLI#source-code)
+- [Updates](https://github.com/Dhruv9449/VITime-CLI#options-and-updates)
 - [Setting up](https://github.com/Dhruv9449/VITime-CLI#setting-up)
   - [Add timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-timetable)
   - [Add course](https://github.com/Dhruv9449/VITime-CLI#vitime-addcourse)
@@ -19,8 +20,10 @@ CLI tool to view your timetable from terminal anytime!
   - [View today's timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-today)
   - [View a day's timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-showday)
   - [View full timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-full)
+  - [Show all courses](https://github.com/Dhruv9449/VITime-CLI#vitime-showcourses)
   - [Delete course](https://github.com/Dhruv9449/VITime-CLI#vitime-deletecourse)
   - [Delete timetable](https://github.com/Dhruv9449/VITime-CLI#vitime-deletetimetable)
+- [Change log](https://github.com/Dhruv9449/VITime-CLI/blob/main/CHANGELOG.md)
 - [License](https://github.com/Dhruv9449/VITime-CLI#license)
 - [References](https://github.com/Dhruv9449/VITime-CLI#references)
 
@@ -37,10 +40,10 @@ CLI tool to view your timetable from terminal anytime!
 ### PyPI
 Open terminal and install the package using python package installer.
 ```sh
-pip install vitime==0.2.0
+pip install vitime==0.2.1
 ```
 ### Source code
-- Download latest release via [zip file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.2.0.zip) or [tar file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.2.0.tar.gz)
+- Download latest release via [zip file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.2.1.zip) or [tar file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.2.1.tar.gz)
 - Extract the folder to your desired location
 - Then install it in your desired terminal using suitable command
 #### Linux or Max OS X
@@ -52,6 +55,14 @@ Run command prompt as administrator and
 ```psh
 C:\users\username> python setup.py install
 ```
+
+
+
+## Updates
+
+VITime has automatic update detection to notify user when a newer version is available! You can update using `vitime -u` or `vitime --update`.
+
+![vitime -u](https://github.com/Dhruv9449/VITime-CLI/blob/main/assets/vitime_update.gif)
 
 
 
@@ -115,6 +126,17 @@ Shows the entire timetable.
 
 
 
+
+#### `vitime showcourses`
+
+Shows a lot of all the courses added to the timetable.
+
+![vitime showcourses](https://github.com/Dhruv9449/VITime-CLI/blob/main/assets/vitime_showcourses.gif)
+
+
+
+
+
 #### `vitime deletecourse`
 
 Deletes the given course from timetable.
@@ -140,7 +162,7 @@ Copyright (c) 2021 Dhruv9449
 [MIT license](LICENSE)
 
 ## References
-This project is inspired by [VITable](https://github.com/CartelProject/vitable]) made by -  
+This project is inspired by [VITable](https://github.com/CartelProject/vitable) made by -  
 [CartelProject](https://github.com/CartelProject)
 - [Vishesh Bansal](https://github.com/VisheshBansal)
 - [Gagan Malvi](https://github.com/gaganmalvi)
