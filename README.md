@@ -42,6 +42,12 @@ Open terminal and install the package using python package installer.
 ```sh
 pip install vitime==0.2.1
 ```
+**NOTE:** This might require admin access, on windows run your terminal as administrator and for linux based systems use-  
+```sh
+sudo pip install vitime==0.2.1
+```
+
+
 ### Source code
 - Download latest release via [zip file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.2.1.zip) or [tar file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.2.1.tar.gz)
 - Extract the folder to your desired location
