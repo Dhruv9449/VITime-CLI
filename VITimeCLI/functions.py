@@ -2,9 +2,15 @@ from .Slotdata import *
 from datetime import datetime
 from .initialize import *
 import click
-
+import re
 
 def savecourse(Course):
+    Course.type = Course.slots[0][0]
+    if Course.type == 'L':
+        Course.type = 'P'
+    else :
+        Course.type = 'L'
+
     if Course.type == "L":
         daysTL = daysTh
         days = list(daysTL.keys())
@@ -18,8 +24,10 @@ def savecourse(Course):
 
     for slot in Course.slots:
         if slot not in allslots:
-            print(f"\nInvalid slots entered for {Course.name}! Please enter valid slots.\nCourse not added!")
-            return
+            print(f"\nInvalid slots entered for {Course.code}! Please enter valid slots.\nCourse not added!")
+            return False
+
+    for slot in Course.slots:
         for day in daysTL:
             dt = {}
             dt[day]=[]
@@ -29,7 +37,7 @@ def savecourse(Course):
                     if slot == daysl[i]:
                         time = times[i]
                         dt[day].append(time)
-                        coursedetails = [time, Course.name, slot, Course.type]
+                        coursedetails = [time, Course.code, Course.name, slot, Course.type]
                         d1 = loadday(day)
                         d1.schedule.append(coursedetails)
                         d1.schedule.sort()
@@ -54,51 +62,34 @@ def addtimetable(ctx):
     if ctx.invoke(deletetimetable):
         print("Please type 'yes' to delete existing timetable and add new one!")
         return
-    print("\n\nEnter your new timetable :")
+
+    print("-"*50)
     text = retrieveinput()
-    print("\nPlease wait this might take a while...")
-    try:
-        data = {i for i in text.split() if len(i)>10}
-        theory , lab = [], []
-        for i in data:
-            if i[0] == 'L':
-                lab.append(i)
-            else:
-                theory.append(i)
-        print('\n'*2)
-        thcourses, lbcourses = {}, {}
-        for i in data:
-            k = i.split('-')
-            if i[0] == 'L':
-                courses = lbcourses
-            else :
-                courses = thcourses
+    if text == False:
+        return
+    print("\n"+"-"*50)
 
-            name = k[1]
-            if name not in courses:
-                courses[name] = [k[0],]
-            else:
-                courses[name].append(k[0])
+    data = scrape(text)
+    if len(data)==0:
+        print("\nInvalid input! Please try again with a valid input or use the addcourse command to add courses manually.")
+        print("\nFor more detailed help on how to add timetable check -\n  https://github.com/Dhruv9449/VITime-CLI#vitime-addtimetable\n")
+        return
 
-        def itercourses(courses, type):
-            for i in courses:
-                Course = course()
-                Course.name = i
-                Course.slots = courses[i]
-                Course.type = type
-                if len(Course.name)<5:
-                    print(f"{Course.name} is an invalid course name, please enter a valid course name.(eg - BCHY101L)")
-                    continue
-                if checkcourse(Course):
-                    print(f"{Course.name} already exists!")
-                    continue
-                savecourse(Course)
-                print(f"{Course.name} added!")
-        itercourses(thcourses, 'L')
-        itercourses(lbcourses, 'P')
-        print('\nTimetable added!')
-    except :
-        print("\nInvalid input! Please try again with a valid input or use the addcourse command to add courses manually")
+    for i in data :
+        Course = course()
+        Course.code = i[0]
+        Course.name = i[1]
+        Course.slots = i[2]
+        if Course.slots[0]=="NIL":
+            continue
+        if checkcourse(Course):
+            continue
+        if not savecourse(Course):
+            continue
+        print(f"{Course.code} added!")
+
+    print('\nTimetable added!\n')
+
 
 
 @vitime.command(cls=CustomCommand)
@@ -107,16 +98,18 @@ def showcourses():
     Shows all courses.
     '''
     print("             VITIME\n")
-    cursor.execute("SELECT name, type, slots FROM Courses")
+    cursor.execute("SELECT code, name, type, slots FROM Courses")
     courses = cursor.fetchall()
     if courses == []:
         print("No courses! Empty timetable!")
     for i in range(len(courses)):
-        if courses[i][1] == 'L':
-            type = ' Theory '
+        if courses[i][2] == 'L':
+            type = '  [Theory] '
         else:
-            type = ' Lab    '
-        print(i+1, courses[i][0], type, f"({'+'.join(eval(courses[i][2]))})")
+            type = '   [Lab]    '
+        print(i+1, courses[i][0] + " - "+ courses[i][1])
+        print(type, f"({'+'.join(eval(courses[i][3]))})")
+        print()
 
 
 
@@ -128,30 +121,14 @@ def addcourse():
     print("             VITIME")
     while True:
         Course = course()
-        Course.name = input("\nEnter course name : ")
-        if len(Course.name)<5:
-            print("\nInvalid course name, please enter a valid course name.(eg - BCHY101L)")
+        Course.code = input("\nEnter course code : ").upper()
+        if len(Course.code)<5:
+            print("\nInvalid course code, please enter a valid course code.(eg - BCHY101L/CSE1002)\n")
             return
+        Course.name = input("Enter course name : ")
         Course.slots = input("Please enter course slots (eg- E2+TE2) : ").upper().split("+")
-        Course.type = Course.slots[0][0]
-        if Course.type == 'L':
-            Course.type = 'P'
-        else :
-            Course.type = 'L'
-
-        n = 1
-        while Course.type not in ["L","P"]:
-            print("Couldn't automatically identify course type!")
-            Course.type = input("Please enter type of course (Theory - L | Practical/Lab - P) : ").upper()[:1]
-            if n == 3:
-                print("\nInvalid course types!")
-                return
-            n+=1
-
-
 
         if checkcourse(Course):
-            print("Course already exists!")
             return
 
         check = savecourse(Course)
@@ -160,6 +137,7 @@ def addcourse():
         opt = input("\nDo you want to add more courses (y/n) : ").lower()[:1]
         if opt == "n":
             break
+            print()
 
 
 
@@ -169,7 +147,7 @@ def deletecourse():
     Deletes a course from the timetable.
     '''
     print("             VITIME")
-    cursor.execute("SELECT name, slots FROM Courses")
+    cursor.execute("SELECT code, name, type, slots FROM Courses")
     courses = cursor.fetchall()
     cursor.execute("SELECT schedule FROM Schedules")
     days = cursor.fetchall()
@@ -178,7 +156,13 @@ def deletecourse():
         return
     print("Courses\n")
     for i in range(len(courses)):
-        print(i+1,courses[i][0],f"({'+'.join(eval(courses[i][1]))})")
+        if courses[i][2] == 'L':
+            type = '  [Theory] '
+        else:
+            type = '   [Lab]    '
+        print(i+1, courses[i][0] + " - "+ courses[i][1])
+        print(type, f"({'+'.join(eval(courses[i][3]))})")
+        print()
     deletecourse = input(("Input enter the sno of course to be deleted from above : "))
     if not deletecourse.isdigit():
         print("\nPlease enter a valid number!")
@@ -188,18 +172,19 @@ def deletecourse():
         print("\nInvalid option plese enter valid option!")
         return
     courses = courses[deletecourse-1]
-    coursename, courseslot = courses
-    cursor.execute("DELETE FROM Courses WHERE name = ? AND slots = ?", courses)
+    coursecode, courseslot = courses[0], courses[3]
+    courses = coursecode, courseslot
+    cursor.execute("DELETE FROM Courses WHERE code = ? AND slots = ?", courses)
     for i in days:
         i = eval(i[0])
         k = list(i)
         for j in i:
-            if j[1] == coursename :
+            if j[1] == coursecode :
                 k.remove(j)
         cursor.execute("UPDATE Schedules SET schedule = ? WHERE schedule = ?",
                         (str(k), str(i)))
     mycon.commit()
-    print("Course deleted!")
+    print(f"\nCourse {coursecode} deleted!\n")
 
 
 
@@ -215,15 +200,11 @@ This step is irreversible. Type "yes" to confirm : """)
     if confirm != "yes" :
         print("\nTimetable not deleted, if you want to delete the timetable try again!\n")
         return True
-    cursor.execute("DELETE FROM Schedules")
-    cursor.execute("DELETE FROM Courses")
-    cursor.executemany("INSERT INTO Schedules VALUES (?,?)",[("monday","[]"),
-                                                         ("tuesday","[]"),
-                                                         ("wednesday","[]"),
-                                                         ("thursday","[]"),
-                                                         ("friday","[]")])
+    cursor.execute("DROP TABLE Schedules")
+    cursor.execute("DROP TABLE Courses")
+    initialize()
     mycon.commit()
-    print("Deleted timetable!")
+    print("\nDeleted timetable!\n")
 
 
 
@@ -237,20 +218,22 @@ def showday(name):
     print("             VITIME")
     Day = name.lower()
     if Day not in days :
-        print("\nPlease enter a working day (eg - monday - friday)!")
+        print("\nPlease enter a working day (eg - monday - friday)!\n")
         return
     cursor.execute("SELECT schedule FROM Schedules WHERE day = ?",(Day,))
     timetable = eval(cursor.fetchone()[0])
     print(f"\nDay's schedule : {Day}")
     if timetable == [] :
-        print("No classes on this day!")
+        print("No classes on this day!\n")
         return
     print()
     for i in timetable:
         print(i[1])
-        print(f"Course type : {i[3]}")
-        print(f"Slot : {i[2]}")
+        print(i[2])
+        print(f"Course type : {checktype(i[4])}")
+        print(f"Slot : {i[3]}")
         print(f"Time : {i[0]}\n")
+    print()
 
 
 
@@ -282,7 +265,7 @@ def today():
 
     print("Today's Timetable :  Classes left\n")
     if timetable == []:
-        print("No classes left to attend today!")
+        print("No classes left to attend today!\n")
         return
     if ongoing:
         print("-> Ongoing!")
@@ -290,9 +273,11 @@ def today():
         print("-> Next class")
     for i in timetable:
         print(i[1])
-        print(f"Course type : {i[3]}")
-        print(f"Slot : {i[2]}")
+        print(i[2])
+        print(f"Course type : {checktype(i[4])}")
+        print(f"Slot : {i[3]}")
         print(f"Time : {i[0]}\n")
+    print()
 
 
 
@@ -312,7 +297,8 @@ def full():
         print(f"Day's schedule : {day}\n")
         for i in schedule:
             print(i[1])
-            print(f"Course type : {i[3]}")
-            print(f"Slot : {i[2]}")
+            print(i[2])
+            print(f"Course type : {checktype(i[4])}")
+            print(f"Slot : {i[3]}")
             print(f"Time : {i[0]}\n")
         print("-"*50)

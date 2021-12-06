@@ -2,23 +2,26 @@ import os
 import sqlite3 as sq
 import click
 import pyperclip
+import re
 
 homedir = os.path.expanduser("~")
 
 
 mycon = sq.connect(homedir+"/VITime.db")
 cursor = mycon.cursor()
-cursor.execute("""CREATE TABLE IF NOT EXISTS Schedules(day TEXT PRIMARY KEY,
-                  schedule TEXT)""")
-cursor.execute("""CREATE TABLE IF NOT EXISTS Courses(name TEXT,
-                  slots TEXT, type TEXT, dt TEXT)""")
-cursor.execute("SELECT * FROM Schedules")
-if cursor.fetchall()==[]:
-    cursor.executemany("INSERT INTO Schedules VALUES (?,?)",[("monday","[]"),
-                                                         ("tuesday","[]"),
-                                                         ("wednesday","[]"),
-                                                         ("thursday","[]"),
-                                                         ("friday","[]")])
+
+def initialize():
+    cursor.execute("""CREATE TABLE IF NOT EXISTS Schedules(day TEXT PRIMARY KEY,
+                      schedule TEXT)""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS Courses(code TEXT, name TEXT,
+                      slots TEXT, type TEXT, dt TEXT)""")
+    cursor.execute("SELECT * FROM Schedules")
+    if cursor.fetchall()==[]:
+        cursor.executemany("INSERT INTO Schedules VALUES (?,?)",[("monday","[]"),
+                                                             ("tuesday","[]"),
+                                                             ("wednesday","[]"),
+                                                             ("thursday","[]"),
+                                                             ("friday","[]")])
     mycon.commit()
 
 
@@ -28,11 +31,12 @@ class day:
         self.schedule = schedule
 
 class course:
-    def __init__(self, name="", slots=[], type="L", dt=[]):
-        self.name = ""
-        self.slots = []
-        self.type = "L"
-        self.dt = []
+    def __init__(self, code="", name="", slots=[], type="L", dt=[]):
+        self.code = code
+        self.name = name
+        self.slots = slots
+        self.type = type
+        self.dt = dt
 
 
 help = dict(help_option_names = ['-h','--help'])
@@ -130,19 +134,19 @@ class CustomCommand(click.Command):
 
 #Database functions
 def addcourse_db(Course):
-    cursor.execute("INSERT INTO Courses values (?,?,?,?)",
-                    (Course.name, str(Course.slots), Course.type, str(Course.dt)))
+    cursor.execute("INSERT INTO Courses values (?,?,?,?,?)",
+                    (Course.code, Course.name, str(Course.slots), Course.type, str(Course.dt)))
     mycon.commit()
 
 def addschedule_db(Day):
     cursor.execute("UPDATE Schedules SET schedule = ? WHERE day = ?", (str(Day.schedule), Day.day,))
     mycon.commit()
 
-def loadcourse(name):
-    cursor.execute("SELECT * FROM Courses WHERE name = ?",(name,))
-    name, slots, type, dt = cursor.fetchall()[0]
+def loadcourse(code):
+    cursor.execute("SELECT * FROM Courses WHERE code = ?",(code,))
+    code, name, slots, type, dt = cursor.fetchall()[0]
     slots, dt = eval(slots), eval(dt)
-    Course = course(name, slots, type, dt)
+    Course = course(code, name, slots, type, dt)
     return Course
 
 def loadday(name):
@@ -153,24 +157,43 @@ def loadday(name):
     return Day
 
 def checkcourse(Name):
-    cursor.execute("SELECT * from Courses WHERE name = ? AND slots = ?",(Name.name, str(Name.slots)))
+    if not re.search("[A-Z][A-Z][A-Z][A-Z]\d\d\d|[A-Z][A-Z][A-Z]\d\d\d\d", Name.code):
+        print(f"\n{Name.code} is an invalid course code, please enter a valid course code.(eg - BCHY101L/CSE1002)\n")
+        return True
+    cursor.execute("SELECT * from Courses WHERE code = ? AND slots = ?",(Name.code, str(Name.slots)))
     courses = cursor.fetchall()
     if len(courses) == 0:
         return False
+    print(f"\nCourse {Name.code} already exists!\n")
     return True
 
 
+def checktype(type):
+    if type == "L" :
+        return "Theory"
+    else:
+        return "Lab"
+
 #input command
 def retrieveinput():
-    lines = 0
-    while True:
-        lines = lines + 1 #counts iterations of the while loop.
+    print("\nGo to vtop and copy all the courses.")
+    print("For more help on how to do that check -\n  https://github.com/Dhruv9449/VITime-CLI#vitime-addtimetable")
+    confirm = input("\nType 'yes' if you have copied all the courses : ").lower()
+    if confirm == 'yes' :
+        text = pyperclip.paste().replace('\r','\n')
+        return text
+    else:
+        print("\nPlease go copy all your courses and try again!")
+        return False
 
-        text = pyperclip.paste()
-        linecount = text.count('\n')+1 #counts lines in clipboard content.
 
-        if lines <= linecount: # aslong as the while loop hasn't iterated as many times as there are lines in the clipboard.
-            input()
-        else:
-            break
-    return text
+def scrape(data):
+    try:
+        code_name = [i[:-1] for i in re.findall("[A-Z][A-Z][A-Z][A-Z]\d\d\d.+\n|[A-Z][A-Z][A-Z]\d\d\d\d.+\n", data)]
+        code = [i.split()[0] for i in code_name]
+        name = [i.split(" - ")[1] for i in code_name]
+        slots = [j[:-3].split('+') for j in re.findall(".+\d.+[-]\n|NIL.+[-]\n",data)]
+        return list(zip(code, name, slots))
+
+    except IndexError :
+        return []

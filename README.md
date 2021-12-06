@@ -36,10 +36,10 @@ CLI tool to view your timetable from terminal anytime!
 ### PyPI
 Open terminal and install the package using python package installer.
 ```sh
-pip install vitime==0.1.2
+pip install vitime==0.2.0
 ```
 ### Source code
-- Download latest release via [zip file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.1.0.zip) or [tar file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.1.0.tar.gz)
+- Download latest release via [zip file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.2.0.zip) or [tar file](https://github.com/Dhruv9449/VITime-CLI/archive/refs/tags/v0.2.0.tar.gz)
 - Extract the folder to your desired location
 - Then install it in your desired terminal using suitable command
 #### Linux or Max OS X
